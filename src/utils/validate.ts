@@ -6,7 +6,7 @@ export const validate = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
 
     if (!result.success) {
         const errors = z.treeifyError(result.error)
-        throw new AppError(JSON.stringify(errors), 400);
+        throw new AppError(JSON.stringify(errors), 400, "VALIDATION_ERROR");
     };
 
     return result.data;

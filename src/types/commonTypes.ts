@@ -1,6 +1,6 @@
 import type { JwtPayload } from "jsonwebtoken";
 
 export interface MyToken extends JwtPayload {
-    userId: string,
+    id: string,
     role: 'admin' | 'worker';
 }

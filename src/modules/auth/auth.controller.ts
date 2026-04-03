@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { validate } from "../../utils/validate.js";
 import { createUser, loginUser, removeUser } from "./auth.service.js";
-import { loginUserSchema, userSchema } from "../../zod/schema.js";
+import { loginUserSchema, userSchema } from "./auth.schema.js";
 
 export const signup = async (req: Request, res: Response) => {
     const validatedInput = validate(userSchema, req.body);
@@ -18,5 +18,5 @@ export const login = async (req: Request, res: Response) => {
 export const remove = async (req: Request, res: Response) => {
     const id = req.user?.id as string;
     const data = await removeUser(id);
-    res.status(204).json({ status: 'success', data });
+    res.status(200).json({ status: 'success', data });
 }

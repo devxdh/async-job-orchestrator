@@ -1,5 +1,5 @@
 {
-  "name": "job-orchestrator",
+  "name": "async-job-orchestrator",
   "version": "1.0.0",
   "description": "",
   "type": "module",

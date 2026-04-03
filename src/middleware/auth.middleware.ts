@@ -16,7 +16,7 @@ export const authMiddleware: RequestHandler = async (req, res, next) => {
         const decoded = jwt.verify(token, env.JWT_SECRET) as MyToken;
 
         req.user = {
-            id: decoded.userId,
+            id: decoded.id,
             role: decoded.role
         };
 
