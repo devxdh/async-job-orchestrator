@@ -1,13 +1,23 @@
-export default class AppError extends Error {
-    statusCode: number;
-    status: string;
-    code: string;
+import { ERROR_CODES } from "@src/types/error.types";
+import type { AppErrorOptions, ErrorCode, ErrorStatus, ValidationFields } from "@src/types/error.types";
 
-    constructor(message: string, statusCode: number, code: string = "INTERNAL_ERROR") {
-        super(message)
+export default class AppError extends Error {
+    readonly statusCode: number;
+    readonly status: ErrorStatus;
+    readonly code: ErrorCode;
+    readonly fields: ValidationFields | undefined;
+
+    constructor(
+        message: string,
+        statusCode: number,
+        options: AppErrorOptions = {}
+    ) {
+        super(message);
+        this.name = "AppError";
         this.statusCode = statusCode;
-        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-        this.code = code;
+        this.status = statusCode < 500 ? "fail" : "error";
+        this.code = options.code ?? ERROR_CODES.INTERNAL_ERROR;
+        this.fields = options.fields;
 
         Error.captureStackTrace(this, this.constructor);
     }

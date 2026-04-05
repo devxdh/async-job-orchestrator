@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { userRouter } from "./auth/auth.route.js";
-import { jobRouter } from "./job/job.route.js";
-import { authMiddleware } from "../middleware/auth.middleware.js";
+import { authRouter } from "./auth/auth.route";
+import { jobRouter } from "./job/job.route";
+import { authMiddleware } from "@src/middleware";
 
 const router: Router = Router();
 
-router.use('/auth', userRouter);
+router.use('/auth', authRouter);
 router.use('/job', authMiddleware, jobRouter);
 
 export { router as appRouter };

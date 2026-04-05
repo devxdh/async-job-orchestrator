@@ -1,27 +1,38 @@
 import type { ErrorRequestHandler } from "express";
-import AppError from "../utils/AppError.js";
+import { ERROR_CODES, } from "@src/types/error.types";
+import AppError from "@src/utils/AppError";
+import { isBodyParserError } from "@src/utils/helpers";
 
-export const errorMiddleware: ErrorRequestHandler = async (err, req, res, next) => {
-    let statusCode = err.statusCode || 500;
-    let message = err.message || "Something went wrong!";
-    let errorCode = err.code || "INTERNAL_ERROR";
-    let success = false;
-
-    if (!(err instanceof AppError)) {
-        if (err.type === "entity.parse.failed") {
-            message = "Invalid JSON format";
-            errorCode = "INVALID_JSON";
-            statusCode = 400;
-        }
+const normalizeError = (err: unknown): AppError => {
+    if (err instanceof AppError) {
+        return err;
     }
 
-    console.error("Error Handler: ", { code: errorCode, message, stack: err.stack });
+    if (isBodyParserError(err) && err.type === "entity.parse.failed") {
+        return new AppError("Invalid JSON format", 400, { code: ERROR_CODES.INVALID_JSON });
+    }
 
-    res.status(statusCode).json({
-        success,
+    return new AppError("Something went wrong", 500, {
+        code: ERROR_CODES.INTERNAL_ERROR,
+    });
+};
+
+export const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
+    const error = normalizeError(err);
+
+    console.error("Error:", {
+        code: error.code,
+        message: error.message,
+        stack: error.stack,
+    });
+
+    res.status(error.statusCode).json({
+        status: error.status,
         error: {
-            code: errorCode,
-            message,
-        }
-    })
+            code: error.code,
+            message: error.message,
+            ...(error.fields ? { fields: error.fields } : {}),
+        },
+        data: null,
+    });
 };

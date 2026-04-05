@@ -1,26 +1,26 @@
 import type { Request, Response } from "express";
-import { jobPayload, listJobSchema, reportJobSchema } from "./job.schema.js";
-import { validate } from "../../utils/validate.js";
-import * as jobService from "./job.service.js";
+import { validate } from "@src/utils/validate";
+import { sendSuccess } from "@src/utils/helpers";
+import { jobPayload, listJobSchema, reportJobSchema } from "./job.schema";
+import * as jobService from "./job.service";
 
 export const create = async (req: Request, res: Response) => {
     const adminId = req.user?.id!;
     const payload = validate(jobPayload, req.body)
     const data = await jobService.createJob(adminId, payload)
-    res.status(201).json({ status: 'success', data })
+    return sendSuccess(res, data, 201);
 };
 
 export const getNext = async (req: Request, res: Response) => {
     const workerId = req.user?.id!;
     const data = await jobService.getNextJob(workerId);
     if (!data) {
-        return res.status(200).json({
-            status: 'success',
+        return sendSuccess(res, null, 200, {
             message: "There are no available jobs at the moment!",
-            data: null
         });
     }
-    res.status(200).json({ status: 'success', data });
+
+    return sendSuccess(res, data, 200);
 };
 
 export const reportJob = async (req: Request, res: Response) => {
@@ -28,20 +28,17 @@ export const reportJob = async (req: Request, res: Response) => {
     const workerId = req.user?.id!;
     const validatedInput = validate(reportJobSchema, req.body);
     const data = await jobService.reportJobOutcome(workerId, jobId, validatedInput);
-    res.status(200).json({ status: 'success', data })
+    return sendSuccess(res, data, 200);
 };
 
 export const list = async (req: Request, res: Response) => {
-    const adminId = req.user?.id!;
     const validatedInput = validate(listJobSchema, req.query);
     const { jobs, nextCursor } = await jobService.listJobs(validatedInput)
 
-    res.status(200).json({
-        status: 'success',
-        data: jobs,
+    return sendSuccess(res, jobs, 200, {
         pagination: {
             nextCursor,
             hasMore: !!nextCursor
-        }
+        },
     });
 };

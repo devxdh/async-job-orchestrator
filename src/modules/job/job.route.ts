@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { restrictMiddleware } from "../../middleware/restrict.middleware.js";
-import * as jobController from "./job.controller.js";
+import { restrictMiddleware } from "@src/middleware/restrict.middleware";
+import * as jobController from "./job.controller";
 
 const router: Router = Router();
 

@@ -1,12 +1,23 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "target": "esnext",
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "strict": true,
+    "paths": {
+      "@src/*": [
+        "./src/*"
+      ],
+      "@tests/*": [
+        "./tests/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
+      ]
+    },
     "lib": [
       "esnext"
     ],
@@ -23,7 +34,9 @@
     "moduleDetection": "force",
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/**/*",
+    "vitest.config.ts"
   ],
   "exclude": [
     "node_modules"

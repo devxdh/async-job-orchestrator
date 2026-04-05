@@ -1,4 +1,4 @@
-import { recoverStuckJob } from "./job.service.js";
+import { recoverStuckJob } from "./job.service";
 
 const THIRTY_MINUTES = 30 * 60 * 1000
 

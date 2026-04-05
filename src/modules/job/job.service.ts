@@ -1,7 +1,8 @@
-import { db } from "../../config/db.config.js";
-import AppError from "../../utils/AppError.js";
-import type { JobPayloadType, ListJobSchemaType, ReportJobSchemaType } from "./job.schema.js";
-import { JobQueries } from "./job.queries.js";
+import { db } from "@src/config/db.config";
+import { ERROR_CODES } from "@src/types/error.types";
+import AppError from "@src/utils/AppError";
+import { JobQueries } from "./job.queries";
+import type { JobPayloadType, ListJobSchemaType, ReportJobSchemaType } from "./job.schema";
 
 export const createJob = async (adminId: string, payload: JobPayloadType) => {
     const result = await db.query(JobQueries.create, [adminId, payload])
@@ -22,9 +23,12 @@ export const reportJobOutcome = async (workerId: string, jobId: string, validate
         throw new AppError(
             "Could not update job. Either it doesn't exist, isn't assigned to you, or is no longer 'processing'",
             400,
-            "JOB_UPDATE_FAILED"
-        )
-    };
+            {
+                code: ERROR_CODES.JOB_UPDATE_FAILED,
+            }
+        );
+    }
+
     return result.rows[0];
 };
 
@@ -49,4 +53,4 @@ export const listJobs = async (validatedInput: ListJobSchemaType) => {
         jobs,
         nextCursor
     };
-}
+};

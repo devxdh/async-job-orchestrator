@@ -1,5 +1,5 @@
-import { authMiddleware } from "./auth.middleware.js"
-import { restrictMiddleware } from "./restrict.middleware.js"
-import { errorMiddleware } from "./error.middleware.js"
+import { authMiddleware } from "./auth.middleware"
+import { restrictMiddleware } from "./restrict.middleware"
+import { errorMiddleware } from "./error.middleware"
 
 export { authMiddleware, errorMiddleware, restrictMiddleware }
