@@ -3,6 +3,12 @@ import request from "supertest";
 import { app } from "@src/app";
 import { cleanupDB } from "@tests/setup/db";
 
+const testWorker = {
+    email: "new.worker@app.test",
+    password: "password123",
+    role: "worker"
+}
+
 describe('POST /auth/signup', () => {
     beforeEach(async () => {
         await cleanupDB();
@@ -12,18 +18,14 @@ describe('POST /auth/signup', () => {
     it('should return status-code 201 and user data for valid input', async () => {
         const res = await request(app)
             .post('/auth/signup')
-            .send({
-                email: "worker1@test.com",
-                password: "password123",
-                role: "worker"
-            })
+            .send(testWorker)
 
         expect(res.status).toBe(201);
         expect(res.body.data).not.toHaveProperty('password');
         expect(res.body).toMatchObject({
             status: 'success',
             data: {
-                email: "worker1@test.com",
+                email: "new.worker@app.test",
                 role: "worker"
             },
             error: null
@@ -34,19 +36,11 @@ describe('POST /auth/signup', () => {
     it('should return status-code 409 and error in response for duplicate users', async () => {
         await request(app)
             .post('/auth/signup')
-            .send({
-                email: "worker1@test.com",
-                password: "password123",
-                role: "worker"
-            });
+            .send(testWorker);
 
         const res = await request(app)
             .post('/auth/signup')
-            .send({
-                email: "worker1@test.com",
-                password: "password123",
-                role: "worker"
-            });
+            .send(testWorker);
 
         expect(res.status).toBe(409)
         expect(res.body).toEqual({
@@ -59,23 +53,28 @@ describe('POST /auth/signup', () => {
         })
     })
 
-    // Invalid Input cases
+    // Multiple Invalid Input cases
     it.each([
         {
             name: 'invalid email',
-            payload: { email: 'not-an-email', password: 'password123', role: 'worker' },
+            payload: { ...testWorker, email: 'not-an-email' },
             fieldError: { email: ['Invalid email address'] }
         },
         {
             name: 'short password',
-            payload: { email: 'test@test.com', password: '123', role: 'worker' },
+            payload: { ...testWorker, password: '123' },
             fieldError: { password: ['Password must be at least 8 characters'] }
         },
         {
             name: 'invalid role',
-            payload: { email: 'test@test.com', password: 'password123', role: 'manager' },
+            payload: { ...testWorker, role: 'manager' },
             fieldError: { role: ["Role must either be 'worker' or 'admin'"] }
         },
+        {
+            name: 'missing fields',
+            payload: { email: 'new.user@app.test' },
+            fieldError: { password: ["Password is required"], role: ["Role is required"] }
+        }
     ])('should return 400 for $name', async ({ payload, fieldError }) => {
         const res = await request(app)
             .post('/auth/signup')
@@ -92,5 +91,4 @@ describe('POST /auth/signup', () => {
             data: null
         })
     });
-
 });

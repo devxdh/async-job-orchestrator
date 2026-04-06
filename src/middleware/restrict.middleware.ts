@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { ERROR_CODES } from "@src/types/error.types";
-import AppError from "@src/utils/AppError";
+import { AppError } from "@src/utils/error";
 
 export const restrictMiddleware = (...allowedRoles: string[]): RequestHandler => {
     return (req, res, next) => {

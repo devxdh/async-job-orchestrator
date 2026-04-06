@@ -1,6 +1,6 @@
 import { db } from "@src/config/db.config";
 import { ERROR_CODES } from "@src/types/error.types";
-import AppError from "@src/utils/AppError";
+import { AppError } from "@src/utils/error";
 import { JobQueries } from "./job.queries";
 import type { JobPayloadType, ListJobSchemaType, ReportJobSchemaType } from "./job.schema";
 

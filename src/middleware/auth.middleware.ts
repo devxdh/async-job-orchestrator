@@ -2,7 +2,7 @@ import { env } from "@src/config/env.config";
 import { ERROR_CODES } from "@src/types/error.types";
 import type { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import AppError from "@src/utils/AppError";
+import { AppError } from "@src/utils/error";
 import type { MyToken } from "@src/types/auth.types";
 
 export const authMiddleware: RequestHandler = async (req, res, next) => {

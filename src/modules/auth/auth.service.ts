@@ -2,9 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { db } from "@src/config/db.config";
 import { ERROR_CODES } from "@src/types/error.types";
-import AppError from "@src/utils/AppError";
+import { AppError, isDatabaseError } from "@src/utils/error";
 import { env } from "@src/config/env.config";
-import { isDatabaseError } from "@src/utils/helpers";
 import type { UserSchemaType, loginUserSchemaType } from "./auth.schema";
 
 export const createUser = async (data: UserSchemaType) => {

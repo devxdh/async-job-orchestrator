@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ERROR_CODES } from "@src/types/error.types";
-import AppError from "@src/utils/AppError";
+import { AppError } from "./error";
 
 export const validate = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
     const result = schema.safeParse(data);

@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
 import path from "node:path";
 
+const testDbWorkers = Number(process.env.TEST_DB_WORKERS ?? "4");
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -10,8 +12,20 @@ export default defineConfig({
     },
   },
   test: {
+    globalSetup: path.resolve(__dirname, "tests/setup/globals.ts"),
     environment: "node",
+    globals: true,
+    pool: "forks",
+    maxWorkers: testDbWorkers,
+    env: {
+      NODE_ENV: "test",
+      JWT_SECRET: "testSecret",
+      VITEST: "true",
+      DB_TEST_NAME: "jobapp_test",
+      TEST_DB_WORKERS: String(testDbWorkers)
+    },
     include: ["tests/**/*.test.ts"],
     passWithNoTests: true,
+    fileParallelism: true,
   },
 });
