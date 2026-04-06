@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "@src/app";
 import { cleanupDB, seedUser, signJWT, type RoleType } from "@tests/setup/db";
-import { ERROR_CODES } from "@src/types/error.types";
 import jwt from "jsonwebtoken";
 import { env } from "@src/config/env.config";
 
@@ -60,7 +59,7 @@ describe("DELETE /auth/remove", () => {
         expect(res.body).toMatchObject({
             status: "fail",
             error: {
-                code: ERROR_CODES.USER_NOT_FOUND,
+                code: "USER_NOT_FOUND",
                 message: "User not found"
             },
             data: null
@@ -76,7 +75,7 @@ describe("DELETE /auth/remove", () => {
         expect(res.body).toMatchObject({
             status: "fail",
             error: {
-                code: ERROR_CODES.INVALID_SESSION,
+                code: "INVALID_SESSION",
                 message: "Invalid or expired session. Please login again."
             },
             data: null
@@ -98,7 +97,7 @@ describe("DELETE /auth/remove", () => {
         expect(res.body).toMatchObject({
             status: "fail",
             error: {
-                code: ERROR_CODES.INVALID_SESSION,
+                code: "INVALID_SESSION",
                 message: "Invalid or expired session. Please login again."
             },
             data: null
