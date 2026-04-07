@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
 import { loadEnvFile } from "node:process";
 
-loadEnvFile()
+if (existsSync(".env")) {
+    loadEnvFile();
+}
 
 class EnvConfig {
     private getEnv(key: string, defaultValue?: string): string {

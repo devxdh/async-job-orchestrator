@@ -1,3 +1,9 @@
+-- Types
+create extension if not exists pgcrypto;
+
+create type user_role as enum ('worker', 'admin');
+create type job_status as enum ('pending', 'processing', 'success', 'failed');
+
 -- Users Table Schema
 create table users(
     id uuid primary key default gen_random_uuid(),
@@ -20,9 +26,4 @@ create table job(
     created_by UUID not null references users(id),
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
-    );
-
-
--- Types
-create type user_role as enum ('worker', 'admin');
-create type job_status as enum ('pending', 'processing', 'success', 'failed');
+);

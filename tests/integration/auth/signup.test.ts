@@ -4,7 +4,7 @@ import { app } from "@src/app";
 import { cleanupDB } from "@tests/setup/db";
 
 const testWorker = {
-    email: "new.worker@app.test",
+    email: "signup_worker@app.test",
     password: "password123",
     role: "worker"
 }
@@ -25,7 +25,7 @@ describe('POST /auth/signup', () => {
         expect(res.body).toMatchObject({
             status: 'success',
             data: {
-                email: "new.worker@app.test",
+                email: "signup_worker@app.test",
                 role: "worker"
             },
             error: null

@@ -2,21 +2,7 @@ import { Client } from "pg";
 import { db } from "@src/config/db.config";
 import { env } from "@src/config/env.config";
 import { setupQueries } from "./queries";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-export type RoleType = 'worker' | 'admin';
-
-type SeedUserType = {
-    email: string;
-    password: string;
-    role: RoleType;
-}
-
-type signJWTType = {
-    id: string;
-    role: RoleType;
-}
 
 const quoteIdentifier = (value: string) => `"${value.replaceAll(`"`, `""`)}"`;
 
@@ -85,19 +71,3 @@ export const cleanupDB = async () => {
         throw err;
     };
 };
-
-
-
-export const seedUser = async ({ email, password, role }: SeedUserType) => {
-    const hashed_password = await bcrypt.hash(password, 10)
-    const result = await db.query(
-        `INSERT INTO users (email, password, role) VALUES ($1, $2, $3) RETURNING id, email, role`,
-        [email, hashed_password, role]
-    )
-
-    return result.rows[0];
-}
-
-export const signJWT = ({ id, role }: signJWTType) => {
-    return jwt.sign({ id, role }, env.JWT_SECRET, { expiresIn: '1h' });
-}

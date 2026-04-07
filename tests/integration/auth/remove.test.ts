@@ -1,37 +1,34 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "@src/app";
-import { cleanupDB, seedUser, signJWT, type RoleType } from "@tests/setup/db";
+import { cleanupDB } from "@tests/setup/db";
+import { seedAndAuthorize } from "@tests/setup/helpers/auth.helper";
+import type { UserType, AuthHeaderType } from "@tests/setup/helpers/types.helper";
 import jwt from "jsonwebtoken";
 import { env } from "@src/config/env.config";
 
-type User = {
-    id: string;
-    email: string;
-    role: RoleType;
-};
 
 describe("DELETE /auth/remove", () => {
-    let token: string;
-    let user: User;
+    let authHeader: AuthHeaderType;
+    let user: UserType;
 
     beforeEach(async () => {
         await cleanupDB();
 
-        const res = await seedUser({
-            email: "login_worker@app.test",
+        const { _authHeader, _user } = await seedAndAuthorize({
+            email: "remove_worker@app.test",
             password: "password123",
             role: "worker"
         });
 
-        token = signJWT({ id: res.id, role: res.role });
-        user = { id: res.id, email: res.email, role: res.role };
+        authHeader = _authHeader;
+        user = { ..._user };
     });
 
     it("should return status-code 200 and id, email and role for authorized users", async () => {
         const res = await request(app)
             .post('/auth/remove')
-            .set('Authorization', `Bearer ${token}`);
+            .set(authHeader);
 
         expect(res.status).toBe(200);
         expect(res.body).toMatchObject({
@@ -49,11 +46,11 @@ describe("DELETE /auth/remove", () => {
     it("should return 404 when the authenticated user no longer exists", async () => {
         await request(app)
             .post('/auth/remove')
-            .set('Authorization', `Bearer ${token}`);
+            .set(authHeader);
 
         const res = await request(app)
             .post('/auth/remove')
-            .set('Authorization', `Bearer ${token}`);
+            .set(authHeader);
 
         expect(res.status).toBe(404);
         expect(res.body).toMatchObject({

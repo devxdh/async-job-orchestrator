@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "@src/app";
-import { cleanupDB, seedUser } from "@tests/setup/db";
+import { cleanupDB } from "@tests/setup/db";
+import { seedUser } from "@tests/setup/helpers/auth.helper";
 
 const testWorker = {
     email: "login_worker@app.test",
@@ -31,7 +32,7 @@ describe("POST /auth/login", () => {
         expect(res.body.data).not.toHaveProperty('password')
     })
 
-    it("should return status-code 401 for invalid login password", async () => {
+    it("should return status-code 401 for invalid login password and error", async () => {
         const res = await request(app)
             .post('/auth/login')
             .send({ ...testWorker, password: 'incorrect_password123' })
@@ -63,7 +64,7 @@ describe("POST /auth/login", () => {
             payload: {},
             fieldError: { email: ["Email is required"], password: ["Password is required"] }
         },
-    ])('should return 400 for $name', async ({ payload, fieldError }) => {
+    ])('should return 400 for $name and error', async ({ payload, fieldError }) => {
         const res = await request(app)
             .post('/auth/login')
             .send(payload);
