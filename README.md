@@ -106,7 +106,7 @@ pnpm install
 
 ### 2. Create your local environment file
 
-Use [.env.example](/home/dev/projects/async-job-orchestrator/.env.example) as the base.
+Use [.env.example](/.env.example) as the base.
 
 Example:
 
