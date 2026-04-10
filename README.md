@@ -124,7 +124,7 @@ DB_TEST_NAME=jobapp_test
 
 ### 3. Create the database schema
 
-Run the SQL from [schema.sql](/home/dev/projects/async-job-orchestrator/src/database/schema.sql) against your local Postgres database.
+Run the SQL from [schema.sql](/src/database/schema.sql) against your local Postgres database.
 
 If you are already using the Docker Postgres service from this repo, the schema is created automatically on first startup of a fresh volume.
 
