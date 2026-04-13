@@ -42,7 +42,7 @@ export const ensureIsolatedTestDatabases = async () => {
     await adminClient.connect();
 
     try {
-        for (let workerNumber = 1; workerNumber <= env.TEST_DB_WORKERS; workerNumber += 1) {
+        for (let workerNumber = 1; workerNumber <= env.DB_TEST_WORKERS; workerNumber += 1) {
             const databaseName = env.getWorkerDatabaseName(String(workerNumber));
 
             await recreateDatabase(adminClient, databaseName);

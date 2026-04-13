@@ -206,7 +206,7 @@ Core variables used by the app:
 | `DB_PORT` | No | PostgreSQL port. Defaults to `5432`. |
 | `DB_NAME` | Yes in normal runtime | Main application database name. |
 | `DB_TEST_NAME` | No | Base test database name. Defaults to `jobapp_test`. |
-| `TEST_DB_WORKERS` | No | Number of isolated test DB workers. Defaults to `4`. |
+| `DB_TEST_WORKERS` | No | Number of isolated test DB workers. Defaults to `4`. |
 
 ## API Overview
 

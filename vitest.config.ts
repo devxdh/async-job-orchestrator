@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 import path from "node:path";
 
-const testDbWorkers = Number(process.env.TEST_DB_WORKERS ?? "4");
+const testDbWorkers = Number(process.env.DB_TEST_WORKERS ?? "4");
 
 export default defineConfig({
   resolve: {
@@ -22,7 +22,7 @@ export default defineConfig({
       JWT_SECRET: "testSecret",
       VITEST: "true",
       DB_TEST_NAME: "jobapp_test",
-      TEST_DB_WORKERS: String(testDbWorkers)
+      DB_TEST_WORKERS: String(testDbWorkers)
     },
     include: ["tests/**/*.test.ts"],
     passWithNoTests: true,

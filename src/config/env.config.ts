@@ -1,8 +1,10 @@
 import { existsSync } from "node:fs";
 import { loadEnvFile } from "node:process";
 
-if (existsSync(".env")) {
+try {
     loadEnvFile();
+} catch (err) {
+
 }
 
 class EnvConfig {
@@ -23,7 +25,7 @@ class EnvConfig {
     public readonly DB_NAME: string;
     public readonly DB_TEST_NAME: string;
     public readonly DB_WORKER_ID: string;
-    public readonly TEST_DB_WORKERS: number;
+    public readonly DB_TEST_WORKERS: number;
     public readonly VITEST: boolean;
 
     constructor() {
@@ -38,7 +40,7 @@ class EnvConfig {
         this.DB_PORT = Number(this.getEnv("DB_PORT", "5432"));
         this.DB_TEST_NAME = this.getEnv("DB_TEST_NAME", "jobapp_test");
         this.DB_WORKER_ID = workerId;
-        this.TEST_DB_WORKERS = Number(this.getEnv("TEST_DB_WORKERS", "4"));
+        this.DB_TEST_WORKERS = Number(this.getEnv("DB_TEST_WORKERS", "4"));
 
         this.DB_NAME = this.VITEST
             ? this.getWorkerDatabaseName(workerId)

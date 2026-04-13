@@ -3,19 +3,19 @@ services:
     image: postgres:16-alpine
     container_name: async-job-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: jobapp
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-jobapp}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d jobapp"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-jobapp}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   app:
     build:
@@ -26,15 +26,15 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      PORT: 3000
-      JWT_SECRET: dev-secret-change-me
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: jobapp
-      DB_TEST_NAME: jobapp_test
-      TEST_DB_WORKERS: 4
+      - PORT=${PORT:-3000}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-jobapp}
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_TEST_NAME=${DB_TEST_NAME:-jobapp_test}
+      - DB_TEST_WORKERS=${DB_TEST_WORKERS:-4}
     ports:
       - "3000:3000"
     restart: unless-stopped
