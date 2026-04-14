@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-// Payload is job data.
-export const jobPayload = z.object({
+export const jobDataSchema = z.object({
     recipient: z.email({
         error: issue => !issue.input ? "Email is required" : "Invalid email address"
     }),
@@ -16,13 +15,16 @@ export const jobPayload = z.object({
         error: issue => !issue.input ? "Description is required" : "Invalid description"
     })
         .min(20, { error: "Description must be between 20-250 characters" })
-        .max(250, { error: "Description must be between 20-250 characters" }),
+        .max(250, { error: "Description must be between 20-250 characters" })
+});
 
+export const createJobSchema = z.object({
     priority: z.enum(["low", "medium", "high"], {
         error: issue => !issue.input
             ? "Priority is required"
             : "Invalid priority. Only high, medium and low are valid"
-    })
+    }).default("medium"),
+    payload: jobDataSchema
 });
 
 // Worker processes the job and then notifies the db about it's status
@@ -50,6 +52,7 @@ export const listJobSchema = z.object({
     limit: z.coerce.number().min(1).max(100, { error: "Limit must be between 1-100" }).default(10)
 });
 
-export type JobPayloadType = z.infer<typeof jobPayload>;
+export type JobDataSchemaType = z.infer<typeof jobDataSchema>;
+export type CreateJobInput = z.infer<typeof createJobSchema>;
 export type ReportJobSchemaType = z.infer<typeof reportJobSchema>;
 export type ListJobSchemaType = z.infer<typeof listJobSchema>;

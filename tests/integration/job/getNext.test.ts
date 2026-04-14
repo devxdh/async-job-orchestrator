@@ -48,7 +48,8 @@ describe("GET /job/next as worker", () => {
     it("should return the next pending job and mark it as processing", async () => {
         const pendingJob = await seedJob({
             payload: buildJobPayload("high"),
-            createdBy: admin.id
+            createdBy: admin.id,
+            priority: 1
         });
 
         const res = await request(app)
@@ -80,18 +81,21 @@ describe("GET /job/next as worker", () => {
         const lowJob = await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             createdAt: "2026-01-01T10:00:00.000Z"
         });
 
         await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 
         const highJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             createdAt: "2026-01-01T08:00:00.000Z"
         });
 
@@ -112,15 +116,14 @@ describe("GET /job/next as worker", () => {
         const olderHighJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             createdAt: "2026-01-01T08:00:00.000Z"
         });
 
         await seedJob({
-            payload: {
-                ...buildJobPayload("high"),
-                recipient: "newer-high@example.com"
-            },
+            payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 
@@ -140,6 +143,7 @@ describe("GET /job/next as worker", () => {
         await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             attempts: 3,
             maxAttempts: 3,
             createdAt: "2026-01-01T08:00:00.000Z"
@@ -148,6 +152,7 @@ describe("GET /job/next as worker", () => {
         const availableJob = await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 
@@ -167,6 +172,7 @@ describe("GET /job/next as worker", () => {
         await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             status: "processing",
             assignedWorkerId: worker.id,
             lockedAt: "2026-01-01T08:05:00.000Z",
@@ -176,6 +182,7 @@ describe("GET /job/next as worker", () => {
         const pendingJob = await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 

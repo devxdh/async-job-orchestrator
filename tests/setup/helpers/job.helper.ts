@@ -1,16 +1,16 @@
 import { db } from "@src/config/db.config";
-import type { JobPayloadType } from "@src/modules/job/job.schema";
+import type { CreateJobInput, JobDataSchemaType } from "@src/modules/job/job.schema";
 
-export const buildJobPayload = (priority: JobPayloadType["priority"]): JobPayloadType => ({
+export const buildJobPayload = (priority: CreateJobInput["priority"]): JobDataSchemaType => ({
     recipient: `${priority}@example.com`,
     title: `${priority.toUpperCase()} priority job`,
     description: `Process the ${priority} priority job and send the follow up email to the target user.`,
-    priority,
 });
 
 export type SeedJobOptions = {
-    payload: JobPayloadType;
+    payload: JobDataSchemaType;
     createdBy: string;
+    priority?: number;
     status?: "pending" | "processing" | "success" | "failed";
     attempts?: number;
     maxAttempts?: number;
@@ -22,6 +22,7 @@ export type SeedJobOptions = {
 export const seedJob = async ({
     payload,
     createdBy,
+    priority = 2, // Default to medium
     status = "pending",
     attempts = 0,
     maxAttempts = 3,
@@ -34,6 +35,7 @@ export const seedJob = async ({
             INSERT INTO job (
                 payload,
                 created_by,
+                priority,
                 status,
                 attempts,
                 max_attempts,
@@ -48,14 +50,15 @@ export const seedJob = async ({
                 $3,
                 $4,
                 $5,
-                COALESCE($6::timestamptz, NOW()),
-                COALESCE($6::timestamptz, NOW()),
-                $7,
-                $8
+                $6,
+                COALESCE($7::timestamptz, NOW()),
+                COALESCE($7::timestamptz, NOW()),
+                $8,
+                $9
             )
             RETURNING *
         `,
-        [payload, createdBy, status, attempts, maxAttempts, createdAt ?? null, assignedWorkerId, lockedAt]
+        [payload, createdBy, priority, status, attempts, maxAttempts, createdAt ?? null, assignedWorkerId, lockedAt]
     );
 
     return result.rows[0];

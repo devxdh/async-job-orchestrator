@@ -27,18 +27,21 @@ describe("GET /job as admin", () => {
         const oldestJob = await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             createdAt: "2026-01-01T08:00:00.000Z"
         });
 
         await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 
         const newestJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             createdAt: "2026-01-01T10:00:00.000Z"
         });
 
@@ -73,6 +76,7 @@ describe("GET /job as admin", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             status: "processing",
             createdAt: "2026-01-01T10:00:00.000Z"
         });
@@ -80,6 +84,7 @@ describe("GET /job as admin", () => {
         await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             status: "success",
             createdAt: "2026-01-01T09:00:00.000Z"
         });
@@ -106,18 +111,21 @@ describe("GET /job as admin", () => {
         const oldestJob = await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             createdAt: "2026-01-01T08:00:00.000Z"
         });
 
         await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             createdAt: "2026-01-01T09:00:00.000Z"
         });
 
         const newestJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             createdAt: "2026-01-01T10:00:00.000Z"
         });
 

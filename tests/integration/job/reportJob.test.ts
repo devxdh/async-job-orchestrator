@@ -43,6 +43,7 @@ describe("POST /job/:id/process as worker", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             status: "processing",
             attempts: 1,
             assignedWorkerId: worker.id,
@@ -79,6 +80,7 @@ describe("POST /job/:id/process as worker", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             status: "processing",
             attempts: 1,
             maxAttempts: 3,
@@ -119,6 +121,7 @@ describe("POST /job/:id/process as worker", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("low"),
             createdBy: admin.id,
+            priority: 3,
             status: "processing",
             attempts: 2,
             maxAttempts: 3,
@@ -159,6 +162,7 @@ describe("POST /job/:id/process as worker", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("high"),
             createdBy: admin.id,
+            priority: 1,
             status: "processing",
             assignedWorkerId: anotherWorker.id,
             lockedAt: "2026-01-01T10:05:00.000Z"
@@ -198,6 +202,7 @@ describe("POST /job/:id/process as worker", () => {
         const processingJob = await seedJob({
             payload: buildJobPayload("medium"),
             createdBy: admin.id,
+            priority: 2,
             status: "processing",
             assignedWorkerId: worker.id,
             lockedAt: "2026-01-01T10:05:00.000Z"

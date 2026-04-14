@@ -6,7 +6,11 @@ import type { AuthHeaderType, UserType } from "@tests/setup/helpers/types.helper
 import { app } from "@src/app";
 import { buildJobPayload } from "@tests/setup/helpers/job.helper";
 
-const jobTestPayload = buildJobPayload("high");
+const jobPayload = buildJobPayload("high");
+const createJobInput = {
+    priority: "high",
+    payload: jobPayload
+};
 
 describe("POST /job/ as admin", () => {
     let authHeader: AuthHeaderType;
@@ -26,14 +30,15 @@ describe("POST /job/ as admin", () => {
     it("should return status-code 201 and returns the job details for valid payload", async () => {
         const res = await request(app)
             .post('/job/')
-            .send(jobTestPayload)
+            .send(createJobInput)
             .set(authHeader);
 
         expect(res.status).toBe(201);
         expect(res.body).toMatchObject({
             status: 'success',
             data: {
-                payload: jobTestPayload,
+                payload: jobPayload,
+                priority: 1, // mapped from 'high'
                 created_by: user.id
             },
             error: null
@@ -45,38 +50,39 @@ describe("POST /job/ as admin", () => {
     it.each([
         {
             name: "invalid recipient email",
-            payload: { ...jobTestPayload, recipient: "not-an-email" },
-            fieldError: { recipient: ["Invalid email address"] }
+            input: { ...createJobInput, payload: { ...jobPayload, recipient: "not-an-email" } },
+            fieldError: { payload: { recipient: ["Invalid email address"] } }
         },
         {
             name: "short title",
-            payload: { ...jobTestPayload, title: "Hey" },
-            fieldError: { title: ["Title must be between 5-50 characters"] }
+            input: { ...createJobInput, payload: { ...jobPayload, title: "Hey" } },
+            fieldError: { payload: { title: ["Title must be between 5-50 characters"] } }
         },
         {
             name: "short description",
-            payload: { ...jobTestPayload, description: "Too short" },
-            fieldError: { description: ["Description must be between 20-250 characters"] }
+            input: { ...createJobInput, payload: { ...jobPayload, description: "Too short" } },
+            fieldError: { payload: { description: ["Description must be between 20-250 characters"] } }
         },
         {
             name: "invalid priority",
-            payload: { ...jobTestPayload, priority: "urgent" },
+            input: { ...createJobInput, priority: "urgent" },
             fieldError: { priority: ["Invalid priority. Only high, medium and low are valid"] }
         },
         {
-            name: "missing fields",
-            payload: {},
+            name: "missing payload fields",
+            input: { priority: "low", payload: {} },
             fieldError: {
-                recipient: ["Email is required"],
-                title: ["Title is required"],
-                description: ["Description is required"],
-                priority: ["Priority is required"]
+                payload: {
+                    recipient: ["Email is required"],
+                    title: ["Title is required"],
+                    description: ["Description is required"]
+                }
             }
         }
-    ])("should return 400 for $name", async ({ payload, fieldError }) => {
+    ])("should return 400 for $name", async ({ input, fieldError }) => {
         const res = await request(app)
             .post("/job/")
-            .send(payload)
+            .send(input)
             .set(authHeader);
 
         expect(res.status).toBe(400);
@@ -108,7 +114,7 @@ describe("POST /job/ as worker", () => {
     it("should return 403 when worker tries to create a job", async () => {
         const res = await request(app)
             .post("/job/")
-            .send(jobTestPayload)
+            .send(createJobInput)
             .set(authHeader);
 
         expect(res.status).toBe(403);

@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
 import { validate } from "@src/utils/validate";
 import { sendSuccess } from "@src/utils/helpers";
-import { jobPayload, listJobSchema, reportJobSchema } from "./job.schema";
+import { createJobSchema, listJobSchema, reportJobSchema } from "./job.schema";
 import * as jobService from "./job.service";
 
 export const create = async (req: Request, res: Response) => {
     const adminId = req.user?.id!;
-    const payload = validate(jobPayload, req.body)
-    const data = await jobService.createJob(adminId, payload)
+    const validatedInput = validate(createJobSchema, req.body);
+    const data = await jobService.createJob(adminId, validatedInput);
     return sendSuccess(res, data, 201);
 };
 

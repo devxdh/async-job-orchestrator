@@ -2,10 +2,13 @@ import { db } from "@src/config/db.config";
 import { ERROR_CODES } from "@src/types/error.types";
 import { AppError } from "@src/utils/error";
 import { JobQueries } from "./job.queries";
-import type { JobPayloadType, ListJobSchemaType, ReportJobSchemaType } from "./job.schema";
+import type { CreateJobInput, ListJobSchemaType, ReportJobSchemaType } from "./job.schema";
 
-export const createJob = async (adminId: string, payload: JobPayloadType) => {
-    const result = await db.query(JobQueries.create, [adminId, payload])
+const PRIORITY_MAP: Record<string, number> = { high: 1, medium: 2, low: 3 };
+
+export const createJob = async (adminId: string, input: CreateJobInput) => {
+    const priorityInt = PRIORITY_MAP[input.priority];
+    const result = await db.query(JobQueries.create, [adminId, input.payload, priorityInt]);
     return result.rows[0];
 };
 

@@ -1,8 +1,8 @@
 export const JobQueries = {
     create: `
-    INSERT INTO job (created_by, payload)
-    VALUES ($1, $2) 
-    RETURNING id, payload, created_by, created_at
+    INSERT INTO job (created_by, payload, priority)
+    VALUES ($1, $2, $3) 
+    RETURNING id, payload, priority, created_by, created_at
     `,
 
     getNext: `
@@ -17,11 +17,7 @@ export const JobQueries = {
         WHERE status = 'pending'
         AND attempts < max_attempts
         ORDER BY
-            CASE
-                WHEN (payload->>'priority') = 'high' THEN 1
-                WHEN (payload->>'priority') = 'medium' THEN 2
-                ELSE 3
-            END,
+            priority ASC,
             created_at ASC
         LIMIT 1
         FOR UPDATE SKIP LOCKED

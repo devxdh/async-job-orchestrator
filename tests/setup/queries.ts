@@ -15,10 +15,13 @@ export const setupQueries = {
 
             CREATE TABLE job(
                 id UUID PRIMARY KEY default gen_random_uuid(),
-                payload jsonb not null,
+                
+                priority SMALLINT NOT NULL DEFAULT 3,
                 status job_status not null default 'pending',
                 attempts integer not null default 0,
                 max_attempts integer not null default 3 check (max_attempts > 0),
+
+                payload jsonb not null,
                 last_error text,
                 assigned_worker_id UUID references users(id),
                 locked_at timestamptz,
@@ -26,5 +29,16 @@ export const setupQueries = {
                 created_at timestamptz not null default now(),
                 updated_at timestamptz not null default now()
             );
+
+            CREATE INDEX idx_job_queue_optimized
+            ON job (priority ASC, created_at ASC)
+            WHERE status = 'pending' AND attempts < max_attempts;
+
+            CREATE INDEX idx_job_stuck_recovery
+            ON job (locked_at)
+            WHERE status = 'processing';
+
+            CREATE INDEX idx_job_admin_list
+            ON job (status, created_at DESC)
             `
 }
