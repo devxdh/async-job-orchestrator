@@ -2,6 +2,7 @@ import { db } from "@src/config/db.config";
 import { ERROR_CODES } from "@src/types/error.types";
 import { AppError } from "@src/utils/error";
 import { JobQueries } from "./job.queries";
+import { logger } from "@src/utils/logger";
 import type { CreateJobInput, ListJobSchemaType, ReportJobSchemaType } from "./job.schema";
 
 /**
@@ -21,7 +22,13 @@ const PRIORITY_MAP: Record<string, number> = { high: 1, medium: 2, low: 3 };
 export const createJob = async (adminId: string, input: CreateJobInput) => {
     const priorityInt = PRIORITY_MAP[input.priority];
     const result = await db.query(JobQueries.create, [adminId, input.payload, priorityInt]);
-    return result.rows[0];
+    
+    const job = result.rows[0];
+    
+    // Milestone: Record that a new job was successfully created.
+    logger.info({ jobId: job.id, adminId, priority: input.priority }, "New job created and queued.");
+    
+    return job;
 };
 
 /**
@@ -31,7 +38,13 @@ export const createJob = async (adminId: string, input: CreateJobInput) => {
 export const getNextJob = async (workerId: string) => {
     const result = await db.query(JobQueries.getNext, [workerId]);
     if (result.rowCount === 0) return null;
-    return result.rows[0];
+    
+    const job = result.rows[0];
+    
+    // Milestone: Record that a worker has claimed a job for processing.
+    logger.info({ jobId: job.id, workerId }, "Job claimed by worker for processing.");
+    
+    return job;
 };
 
 /**
@@ -45,6 +58,7 @@ export const reportJobOutcome = async (workerId: string, jobId: string, validate
     // If we couldn't find a job assigned to this worker, I'm throwing an error 
     // to be safe!
     if (result.rowCount === 0) {
+        logger.warn({ jobId, workerId }, "Failed to report job outcome: Job not found or not assigned to this worker.");
         throw new AppError(
             "Could not update job. Either it doesn't exist, isn't assigned to you, or is no longer 'processing'",
             400,
@@ -54,7 +68,16 @@ export const reportJobOutcome = async (workerId: string, jobId: string, validate
         );
     }
 
-    return result.rows[0];
+    const job = result.rows[0];
+
+    // Milestone: Record the final outcome of the job.
+    if (status === 'success') {
+        logger.info({ jobId, workerId }, "Job completed successfully.");
+    } else {
+        logger.error({ jobId, workerId, error: last_error, nextStatus: job.status }, "Job reported as failed by worker.");
+    }
+
+    return job;
 };
 
 /**

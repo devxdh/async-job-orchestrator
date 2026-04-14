@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { loadEnvFile } from "node:process";
 
 try {
@@ -16,6 +15,8 @@ class EnvConfig {
         return value;
     }
 
+    public readonly NODE_ENV: string;
+    public readonly isProduction: boolean;
     public readonly PORT: number;
     public readonly JWT_SECRET: string;
     public readonly DB_USER: string;
@@ -31,6 +32,8 @@ class EnvConfig {
     constructor() {
         const workerId = this.resolveWorkerId();
 
+        this.NODE_ENV = process.env.NODE_ENV || "development";
+        this.isProduction = this.NODE_ENV === "production";
         this.VITEST = !!process.env.VITEST;
         this.PORT = Number(this.getEnv("PORT", "3000"));
         this.JWT_SECRET = this.getEnv("JWT_SECRET");
