@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+/**
+ * These are my job validation schemas. 
+ * 
+ * I split these up on purpose: 
+ * 'jobDataSchema' is just the raw data for the task (like who gets the email).
+ * 'createJobSchema' wraps that up with metadata like 'priority'.
+ * 
+ * This helps us keep the "what to do" separate from the "when to do it."
+ */
+
 export const jobDataSchema = z.object({
     recipient: z.email({
         error: issue => !issue.input ? "Email is required" : "Invalid email address"
@@ -24,10 +34,16 @@ export const createJobSchema = z.object({
             ? "Priority is required"
             : "Invalid priority. Only high, medium and low are valid"
     }).default("medium"),
+    
+    // This is the actual job data we'll store in the JSONB column.
     payload: jobDataSchema
 });
 
-// Worker processes the job and then notifies the db about it's status
+/**
+ * When a worker finishes a job, I want them to tell us if it worked.
+ * I added a little logic here so that if they report a failure, 
+ * they MUST provide a 'last_error' so we know what went wrong!
+ */
 export const reportJobSchema = z.object({
     status: z.enum(['success', 'failed']),
     last_error: z.string().trim().optional()
@@ -41,6 +57,11 @@ export const reportJobSchema = z.object({
     }
 });
 
+/**
+ * This is for admins who want to see the job list. 
+ * I used a cursor-based approach for pagination because it handles 
+ * growing lists much better than simple page numbers.
+ */
 export const listJobSchema = z.object({
     status: z.enum(['success', 'failed', 'pending', 'processing']).nullable().optional(),
     cursor: z.string()

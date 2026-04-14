@@ -1,14 +1,26 @@
 import { recoverStuckJob } from "./job.service";
 
+/**
+ * This is my background recovery system. 
+ * 
+ * Sometimes, things go wrong; a worker might crash, or the server 
+ * might restart while a job is in the 'processing' state. 
+ * 
+ * Without this, those jobs would stay "locked" forever. This scheduler 
+ * runs every 30 minutes to find any job that's been stuck for too long 
+ * and puts it back into 'pending' so it can be finished.
+ */
+
 const THIRTY_MINUTES = 30 * 60 * 1000
 
 export const initJobScheduler = () => {
     console.log(`[Scheduler] Background recovery worker started.`);
 
-    // Starts immediately one time with the start of the server
+    // I run it once right when the server starts, just in case there were 
+    // stuck jobs from a previous crash.
     recoverStuckJob().catch(err => console.error(`[Scheduler Error]: ${err}`));
 
-    // Runes every 30 mintues to ensure the recovery of stuck jobs
+    // Then it runs every 30 minutes after that.
     setInterval(async () => {
         try {
             const recovered = await recoverStuckJob();

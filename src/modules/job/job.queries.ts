@@ -1,10 +1,30 @@
+/**
+ * These are all the SQL queries for our job system. 
+ * I tried to keep them as efficient as possible.
+ */
 export const JobQueries = {
+    /**
+     * I decided to use a dedicated 'priority' column instead of putting it 
+     * inside the JSON payload. This lets the database sort our jobs 
+     * almost instantly using the B-tree index!
+     */
     create: `
     INSERT INTO job (created_by, payload, priority)
     VALUES ($1, $2, $3) 
     RETURNING id, payload, priority, created_by, created_at
     `,
 
+    /**
+     * This query is the "heart" of our worker system. 
+     * 
+     * I'm using 'FOR UPDATE SKIP LOCKED' here. This is super important because 
+     * it prevents two workers from grabbing the same job at the exact same time. 
+     * It basically tells Postgres: "Lock this job for me, but if someone else 
+     * already has a lock on a job, just skip it and find the next one."
+     * 
+     * We also sort by 'priority ASC' (so 1:High comes first) and 
+     * 'created_at ASC' (so the oldest jobs get done first).
+     */
     getNext: `
     UPDATE job
     SET
@@ -25,6 +45,12 @@ export const JobQueries = {
     RETURNING id, payload, status, locked_at
     `,
 
+    /**
+     * When a job is reported, I update the status and attempts. 
+     * If a job fails, we increment 'attempts' and it might go 
+     * back to 'pending' to try again later if attempts < max_attempts
+     * else it is marked as failed and cannot be retried!
+     */
     reportJob: `
     UPDATE job
     SET
@@ -53,6 +79,11 @@ export const JobQueries = {
     RETURNING id, status, attempts
     `,
 
+    /**
+     * Sometimes a worker might crash and leave a job "stuck" in processing. 
+     * This query finds jobs that have been locked for more than 30 minutes 
+     * and puts them back into 'pending' so another worker can try them.
+     */
     recoverStuckJob: `
     UPDATE job
     SET
@@ -65,6 +96,10 @@ export const JobQueries = {
     RETURNING id
     `,
 
+    /**
+     * This lists jobs for the admin. I'm using a descending sort on 'created_at' 
+     * so they see the newest ones first.
+     */
     listJob: `
     SELECT * FROM job
     WHERE
